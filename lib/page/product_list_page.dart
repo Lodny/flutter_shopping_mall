@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_shopping_mall/page/product_detail_page.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -36,43 +37,52 @@ class _ItemListPageState extends State<ItemListPage> {
         },),
     );
   }
+
   Widget productContainer({
     required String name,
     required String imageUrl,
     required double price}) {
-    return Container(
-      padding: EdgeInsets.all(5),
-      child: Column(
-        children: [
-          CachedNetworkImage(
-            height: 150,
-            fit: BoxFit.cover,
-            imageUrl: imageUrl,
-            placeholder: (context, url) => Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
+    return GestureDetector(
+      onTap: () {
+        print('product: ' + name);
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) => ProductDetailPage(),
+        ));
+      },
+      child: Container(
+        padding: EdgeInsets.all(5),
+        child: Column(
+          children: [
+            CachedNetworkImage(
+              height: 150,
+              fit: BoxFit.cover,
+              imageUrl: imageUrl,
+              placeholder: (context, url) => Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              ),
+              errorWidget: (context, url, error) => Center(
+                child: Text('오류 발생'),
               ),
             ),
-            errorWidget: (context, url, error) => Center(
-              child: Text('오류 발생'),
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(8),
-            child: Text(
-              name,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
+            Container(
+              padding: EdgeInsets.all(8),
+              child: Text(
+                name,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          Container(
-            padding: EdgeInsets.all(8),
-            child: Text(
-              '${numberFormat.format(price)}원',
+            Container(
+              padding: EdgeInsets.all(8),
+              child: Text(
+                '${numberFormat.format(price)}원',
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
