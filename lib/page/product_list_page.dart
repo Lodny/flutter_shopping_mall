@@ -46,7 +46,7 @@ class _ItemListPageState extends State<ItemListPage> {
       onTap: () {
         print('product: ' + name);
         Navigator.push(context, MaterialPageRoute(
-          builder: (context) => ProductDetailPage(),
+          builder: (context) => ProductDetailPage(name, imageUrl, price),
         ));
       },
       child: Container(
