@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../data/product_data.dart';
+import '../util/util.dart';
 
 class ItemListPage extends StatefulWidget {
   const ItemListPage({super.key});
@@ -13,8 +14,6 @@ class ItemListPage extends StatefulWidget {
 }
 
 class _ItemListPageState extends State<ItemListPage> {
-  final NumberFormat numberFormat = NumberFormat('###,###,###,###');
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
