@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../util/util.dart';
+import 'cart_page.dart';
 
 class ProductDetailPage extends StatefulWidget {
   ProductDetailPage(this.name, this.imageUrl, this.price, {super.key});
@@ -65,7 +66,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         padding: EdgeInsets.all(20),
         child: FilledButton(
           onPressed: () {
-
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    CartPage(widget.name, widget.imageUrl, widget.price),
+              ),
+            );
           },
           child: Text(
               '장바구니 담기',
