@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_shopping_mall/page/checkout_page.dart';
 import 'package:flutter_shopping_mall/util/util.dart';
 
 import '../data/product_data.dart';
@@ -58,7 +59,7 @@ class _CartPageState extends State<CartPage> {
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(20),
         child: FilledButton(
-          onPressed: () {},
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutPage(),)),
           child: Text('총 ${numberFormat.format(totalPrice)}원 결재하기'),
         ),
       ),
