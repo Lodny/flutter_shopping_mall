@@ -55,6 +55,13 @@ class _CartPageState extends State<CartPage> {
           ],
         ),
       ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.all(20),
+        child: FilledButton(
+          onPressed: () {},
+          child: Text('총 ${numberFormat.format(totalPrice)}원 결재하기'),
+        ),
+      ),
     );
   }
 
@@ -66,6 +73,7 @@ class _CartPageState extends State<CartPage> {
     return foundProduct == null
         ? Container()
         : Container(
+            padding: EdgeInsets.all(8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
