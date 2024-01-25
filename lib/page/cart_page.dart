@@ -113,7 +113,8 @@ class _CartPageState extends State<CartPage> {
                             icon: Icon(Icons.delete),
                           ),
                         ],
-                      )
+                      ),
+                      Text('합계: ${numberFormat.format(foundProduct.price! * cart.$2)}원',),
                     ],
                   ),
                 )
