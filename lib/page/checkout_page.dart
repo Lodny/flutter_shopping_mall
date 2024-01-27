@@ -18,24 +18,35 @@ class _CheckoutPageState extends State<CheckoutPage> {
     (4, 3),
   ];
 
+  final formkey = GlobalKey<FormState>();
+
   double get totalPrice => cartList.fold(
       0.0, (total, cart) => total + productList[cart.$1].price! * cart.$2);
 
   // controller 변수 추가
-  TextEditingController buyerNameController = TextEditingController();
-  TextEditingController buyerEmailController = TextEditingController();
-  TextEditingController buyerPhoneController = TextEditingController();
-  TextEditingController receiverNameController = TextEditingController();
-  TextEditingController receiverPhoneController = TextEditingController();
-  TextEditingController receiverZipController = TextEditingController();
-  TextEditingController receiverAddress1Controller = TextEditingController();
-  TextEditingController receiverAddress2Controller = TextEditingController();
-  TextEditingController userPwdController = TextEditingController();
-  TextEditingController userConfirmPwdController = TextEditingController();
-  TextEditingController cardNoController = TextEditingController();
-  TextEditingController cardAuthController = TextEditingController();
-  TextEditingController cardExpiredDateController = TextEditingController();
-  TextEditingController cardPwdTwoDigitsController = TextEditingController();
+  TextEditingController _buyerNameController = TextEditingController();
+  TextEditingController _buyerEmailController = TextEditingController();
+  TextEditingController _buyerPhoneController = TextEditingController();
+  TextEditingController _receiverNameController = TextEditingController();
+  TextEditingController _receiverPhoneController = TextEditingController();
+  TextEditingController _receiverZipController = TextEditingController();
+  TextEditingController _receiverAddress1Controller = TextEditingController();
+  TextEditingController _receiverAddress2Controller = TextEditingController();
+  TextEditingController _userPwdController = TextEditingController();
+  TextEditingController _userConfirmPwdController = TextEditingController();
+  TextEditingController _cardNoController = TextEditingController();
+  TextEditingController _cardAuthController = TextEditingController();
+  TextEditingController _cardExpiredDateController = TextEditingController();
+  TextEditingController _cardPwdTwoDigitsController = TextEditingController();
+  TextEditingController _depositNameController = TextEditingController();
+
+  // 결재수단
+  final List<String> paymentMethodList = [
+    '결재수단선택',
+    '카드결재',
+    '무통장입금',
+  ];
+  int _selectedPaymentIndex = 0;
 
 
   @override
@@ -55,20 +66,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
               itemBuilder: (context, index) => _checkoutContainer(cartList[index]),
             ),
             // 입력폼
-            _buyerNameTextFiled(),
-            _buyerEmailTextField(),
-            _buyerPhoneTextField(),
-            _receiverNameTextField(),
-            _receiverPhoneTextField(),
+            _getTextFormFiled(_buyerNameController, '주문자명'),
+            _getTextFormFiled(_buyerEmailController, '주문자 이메일'),
+            _getTextFormFiled(_buyerPhoneController, '주문자 휴대전화'),
+            _getTextFormFiled(_receiverNameController, '받는 사람 이름'),
+            _getTextFormFiled(_receiverPhoneController, '받는 사람 휴대 전화'),
             _receiverZipTextField(),
-            _receiverAddress1TextField(),
-            _receiverAddress2TextField(),
-            _userPwdTextField(),
-            _userConfirmPwdTextField(),
-            _cardNoTextField(),
-            _cardAuthTextField(),
-            _cardExpiredDateTextField(),
-            _cardPwdTwoDigitsTextField(),
+            _getTextFormFiled(_receiverAddress1Controller, '기본 주소', readOnly: true),
+            _getTextFormFiled(_receiverAddress2Controller, '상세 주소'),
+            _getTextFormFiled(_userPwdController, '비회원 주문조회 비밀번호', obscureText: true),
+            _getTextFormFiled(_userConfirmPwdController, '비회원 주문조회 비밀번호 확인', obscureText: true),
+
+            _getTextFormFiled(_cardNoController, '카드번호'),
+            _getTextFormFiled(_cardAuthController, '카드명의자 주민번호 앞자리', maxLength: 10),
+            _getTextFormFiled(_cardExpiredDateController, '카드 만료일'),
+            _getTextFormFiled(_cardPwdTwoDigitsController, '카드 비밀번호 앞2자리', obscureText: true, maxLength: 2),
           ],
         ),
       ),
@@ -125,66 +137,33 @@ class _CheckoutPageState extends State<CheckoutPage> {
           );
   }
 
-  Widget _buyerNameTextFiled() {
+  Widget _getTextFormFiled(TextEditingController controller, String hintText, {
+    bool readOnly = false,
+    bool obscureText = false,
+    int? maxLength}) {
+
     return Padding(
       padding: EdgeInsets.all(8),
       child: TextFormField(
-        controller: buyerNameController,
+        controller: controller,
+        readOnly: readOnly,
+        obscureText: obscureText,
+        maxLength: maxLength,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return '내용을 입력해 주세요.';
+          }
+
+          if (controller == _userConfirmPwdController &&
+              _userPwdController.text != _userConfirmPwdController.text) {
+            return '비밀번호가 일치하지 않습니다.';
+          }
+
+          return null;
+        },
         decoration: InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: '주문자명'
-        ),
-      ),
-    );
-  }
-
-  Widget _buyerEmailTextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: buyerEmailController,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "주문자 이메일",
-        ),
-      ),
-    );
-  }
-
-  Widget _buyerPhoneTextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: buyerPhoneController,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "주문자 휴대전화",
-        ),
-      ),
-    );
-  }
-
-  Widget _receiverNameTextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: receiverNameController,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "받는 사람 이름",
-        ),
-      ),
-    );
-  }
-
-  Widget _receiverPhoneTextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: receiverPhoneController,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "받는 사람 휴대 전화",
+            border: OutlineInputBorder(),
+            hintText: hintText
         ),
       ),
     );
@@ -198,7 +177,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           Expanded(
             child: TextFormField(
               readOnly: true,
-              controller: receiverZipController,
+              controller: _receiverZipController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: "우편번호",
@@ -211,8 +190,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
               MaterialPageRoute(
                 builder: (context) => KpostalView(
                   callback: (result) {
-                    receiverZipController.text = result.postCode;
-                    receiverAddress1Controller.text = result.address;
+                    _receiverZipController.text = result.postCode;
+                    _receiverAddress1Controller.text = result.address;
                   },
                 ),
               ),
@@ -228,116 +207,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
           )
         ],
-      ),
-    );
-  }
-
-  Widget _receiverAddress1TextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        readOnly: true,
-        controller: receiverAddress1Controller,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "기본 주소",
-        ),
-      ),
-    );
-  }
-
-  Widget _receiverAddress2TextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: receiverAddress2Controller,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "상세 주소",
-        ),
-      ),
-    );
-  }
-
-  Widget _userPwdTextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: userPwdController,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "비회원 주문조회 비밀번호",
-        ),
-        obscureText: true,
-      ),
-    );
-  }
-
-  Widget _userConfirmPwdTextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: userConfirmPwdController,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "비회원 주문조회 비밀번호 확인",
-        ),
-        obscureText: true,
-      ),
-    );
-  }
-
-  Widget _cardNoTextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: cardNoController,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "카드번호",
-        ),
-      ),
-    );
-  }
-
-  Widget _cardAuthTextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        maxLength: 10,
-        controller: cardAuthController,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "카드명의자 주민번호 앞자리",
-        ),
-      ),
-    );
-  }
-
-  Widget _cardExpiredDateTextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: cardExpiredDateController,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "카드 만료일",
-        ),
-      ),
-    );
-  }
-
-  Widget _cardPwdTwoDigitsTextField() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: cardPwdTwoDigitsController,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "카드 비밀번호 앞2자리",
-        ),
-        obscureText: true,
-        maxLength: 2,
       ),
     );
   }
