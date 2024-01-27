@@ -53,7 +53,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('결재시작',),
+        title: const Text('결재시작',),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -69,18 +69,29 @@ class _CheckoutPageState extends State<CheckoutPage> {
             _getTextFormFiled(_buyerNameController, '주문자명'),
             _getTextFormFiled(_buyerEmailController, '주문자 이메일'),
             _getTextFormFiled(_buyerPhoneController, '주문자 휴대전화'),
+
             _getTextFormFiled(_receiverNameController, '받는 사람 이름'),
             _getTextFormFiled(_receiverPhoneController, '받는 사람 휴대 전화'),
+
             _receiverZipTextField(),
             _getTextFormFiled(_receiverAddress1Controller, '기본 주소', readOnly: true),
             _getTextFormFiled(_receiverAddress2Controller, '상세 주소'),
+
             _getTextFormFiled(_userPwdController, '비회원 주문조회 비밀번호', obscureText: true),
             _getTextFormFiled(_userConfirmPwdController, '비회원 주문조회 비밀번호 확인', obscureText: true),
 
-            _getTextFormFiled(_cardNoController, '카드번호'),
-            _getTextFormFiled(_cardAuthController, '카드명의자 주민번호 앞자리', maxLength: 10),
-            _getTextFormFiled(_cardExpiredDateController, '카드 만료일'),
-            _getTextFormFiled(_cardPwdTwoDigitsController, '카드 비밀번호 앞2자리', obscureText: true, maxLength: 2),
+            _paymentMethodDropdownButton(),
+            if (_selectedPaymentIndex == 1)
+              Column(
+                children: [
+                  _getTextFormFiled(_cardNoController, '카드번호'),
+                  _getTextFormFiled(_cardAuthController, '카드명의자 주민번호 앞자리', maxLength: 10),
+                  _getTextFormFiled(_cardExpiredDateController, '카드 만료일 (YYYYMM)', maxLength: 6),
+                  _getTextFormFiled(_cardPwdTwoDigitsController, '카드 비밀번호 앞2자리', obscureText: true, maxLength: 2),
+                ],
+              )
+            else if (_selectedPaymentIndex == 2)
+              _getTextFormFiled(_depositNameController, '입금자명'),
           ],
         ),
       ),
@@ -96,7 +107,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return foundProduct == null
         ? Container()
         : Container(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -110,11 +121,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     ),
                   ),
                   errorWidget: (context, url, error) => Center(
-                    child: Text('오류 발생'),
+                    child: const Text('오류 발생'),
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8,),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8,),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -143,7 +154,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     int? maxLength}) {
 
     return Padding(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       child: TextFormField(
         controller: controller,
         readOnly: readOnly,
@@ -202,11 +213,39 @@ class _CheckoutPageState extends State<CheckoutPage> {
               )
             ),
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 22),
-              child: Text('우편 번호 찾기'),
+              padding: const EdgeInsets.symmetric(vertical: 22),
+              child: const Text('우편 번호 찾기'),
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Widget _paymentMethodDropdownButton() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        border: Border.all(width: 0.5),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: DropdownButton<String>(
+        onChanged: (value) {
+          setState(() {
+            _selectedPaymentIndex = paymentMethodList.indexWhere((payment) => payment == value);
+          });
+        },
+        underline: Container(),
+        isExpanded: true,
+        items: paymentMethodList.map<DropdownMenuItem<String>>((payment) =>
+          DropdownMenuItem<String>(
+            child: Text(payment),
+            value: payment,
+          ),
+        ).toList(),
+        value: paymentMethodList[_selectedPaymentIndex],
       ),
     );
   }
