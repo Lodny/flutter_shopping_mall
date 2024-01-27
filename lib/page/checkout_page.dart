@@ -268,6 +268,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           border: OutlineInputBorder(),
           hintText: "비회원 주문조회 비밀번호",
         ),
+        obscureText: true,
       ),
     );
   }
@@ -281,6 +282,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           border: OutlineInputBorder(),
           hintText: "비회원 주문조회 비밀번호 확인",
         ),
+        obscureText: true,
       ),
     );
   }
@@ -302,6 +304,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
+        maxLength: 10,
         controller: cardAuthController,
         decoration: const InputDecoration(
           border: OutlineInputBorder(),
@@ -333,6 +336,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
           border: OutlineInputBorder(),
           hintText: "카드 비밀번호 앞2자리",
         ),
+        obscureText: true,
+        maxLength: 2,
       ),
     );
   }
