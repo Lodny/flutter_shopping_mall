@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_shopping_mall/util/util.dart';
 
+import '../enum/payment_type.dart';
+
 class OrderResultPage extends StatefulWidget {
   OrderResultPage({
     super.key,
-    required this.paymentMethod,
+    required this.paymentType,
     required this.paymentAmount,
     required this.receiveName,
     required this.receivePhone,
@@ -13,7 +15,7 @@ class OrderResultPage extends StatefulWidget {
     required this.address2,
   });
 
-  String paymentMethod = '';
+  PaymentType paymentType = PaymentType.select;
   double paymentAmount = .0;
   String receiveName = '';
   String receivePhone = '';
@@ -59,7 +61,7 @@ class _OrderResultPageState extends State<OrderResultPage> {
                   textScaleFactor: 1.2,
                 ),
                 SizedBox(height: 20,),
-                if (widget.paymentMethod == '무통장입금')
+                if (widget.paymentType == PaymentType.cash)
                   Container(
                     padding: const EdgeInsets.all(8),
                     child: Text('아래 계좌 정보로 입금해 주시면 결제 완료처리가 됩니다.'),
@@ -70,8 +72,8 @@ class _OrderResultPageState extends State<OrderResultPage> {
                   margin: const EdgeInsets.all(30),
                   child: Column(
                     children: [
-                      if (widget.paymentMethod == '무통장입금') _depositInfoRow(),
-                      if (widget.paymentMethod == '무통장입금') Divider(),
+                      if (widget.paymentType == PaymentType.cash) _depositInfoRow(),
+                      if (widget.paymentType == PaymentType.cash) Divider(),
                       _paymentAmountRow(),
                       Divider(),
                       _orderNumberRow(),
@@ -124,7 +126,7 @@ class _OrderResultPageState extends State<OrderResultPage> {
         children: [
           Expanded(
             flex: 35,
-            child: Text(widget.paymentMethod == '무통장입금' ? '입금금액' : '결제금액'),
+            child: Text(widget.paymentType == PaymentType.cash ? '입금금액' : '결제금액'),
           ),
           Expanded(
             flex: 65,

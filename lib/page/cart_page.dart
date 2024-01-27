@@ -47,7 +47,7 @@ class _CartPageState extends State<CartPage> {
         padding: EdgeInsets.all(20),
         child: FilledButton(
           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutPage(),)),
-          child: Text('총 ${numberFormat.format(totalPrice)}원 결재하기'),
+          child: Text('총 ${numberFormat.format(totalPrice)}원 결제하기'),
         ),
       ),
     );

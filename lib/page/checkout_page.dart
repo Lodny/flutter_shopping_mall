@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_shopping_mall/component/basic_dialog.dart';
+import 'package:flutter_shopping_mall/enum/payment_type.dart';
 import 'package:flutter_shopping_mall/page/order_result_page.dart';
 import 'package:kpostal/kpostal.dart';
 
@@ -42,20 +43,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
   TextEditingController _cardPwdTwoDigitsController = TextEditingController();
   TextEditingController _depositNameController = TextEditingController();
 
-  // 결재수단
-  final List<String> paymentMethodList = [
-    '결재수단선택',
-    '카드결재',
-    '무통장입금',
-  ];
-  int _selectedPaymentIndex = 0;
+
+  PaymentType _selectedPaymentType = PaymentType.select;
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('결재시작',),
+        title: const Text('결제시작',),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -86,7 +82,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   _getTextFormFiled(_userConfirmPwdController, '비회원 주문조회 비밀번호 확인', obscureText: true),
 
                   _paymentMethodDropdownButton(),
-                  if (_selectedPaymentIndex == 1)
+                  if (_selectedPaymentType == PaymentType.card)
                     Column(
                       children: [
                         _getTextFormFiled(_cardNoController, '카드번호'),
@@ -95,7 +91,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         _getTextFormFiled(_cardPwdTwoDigitsController, '카드 비밀번호 앞2자리', obscureText: true, maxLength: 2),
                       ],
                     )
-                  else if (_selectedPaymentIndex == 2)
+                  else if (_selectedPaymentType == PaymentType.cash)
                     _getTextFormFiled(_depositNameController, '입금자명'),
                 ],
               ),
@@ -109,12 +105,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
           onPressed: () {
             if (! formkey.currentState!.validate()) return;
 
-            if (_selectedPaymentIndex == 0) {
+            if (_selectedPaymentType == PaymentType.select) {
               showDialog(
                 context: context,
                 builder: (context) =>
                     BasicDialog(
-                      content: '결재수단을 선택해 주세요.',
+                      content: '결제수단을 선택해 주세요.',
                       buttonText: '닫기',
                       buttonFunction: () => Navigator.of(context).pop(),
                     ),
@@ -125,7 +121,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
             Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
                 OrderResultPage(
-                  paymentMethod: paymentMethodList[_selectedPaymentIndex],
+                  paymentType: _selectedPaymentType,
                   paymentAmount: totalPrice,
                   zip: _receiverZipController.text,
                   address1: _receiverAddress1Controller.text,
@@ -137,7 +133,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             );
           },
           child: Text(
-            '합계: ${numberFormat.format(totalPrice)}원 결재하기',
+            '합계: ${numberFormat.format(totalPrice)}원 결제하기',
           ),
         ),
       ),
@@ -280,18 +276,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
       child: DropdownButton<String>(
         onChanged: (value) {
           setState(() {
-            _selectedPaymentIndex = paymentMethodList.indexWhere((payment) => payment == value);
+            _selectedPaymentType = PaymentType.byCode(value!);
           });
         },
         underline: Container(),
         isExpanded: true,
-        items: paymentMethodList.map<DropdownMenuItem<String>>((payment) =>
+        items: PaymentType.values.map<DropdownMenuItem<String>>((payment) =>
           DropdownMenuItem<String>(
-            child: Text(payment),
-            value: payment,
+            child: Text(payment.name),
+            value: payment.code,
           ),
         ).toList(),
-        value: paymentMethodList[_selectedPaymentIndex],
+        value: _selectedPaymentType.code,
       ),
     );
   }
