@@ -37,12 +37,11 @@ class _ItemListPageState extends State<ItemListPage> {
             icon: Icon(
               Icons.shopping_cart,
             ),
-            onPressed: (){},
-            // onPressed: () => Navigator.of(context).push(
-            //   MaterialPageRoute(
-            //     builder: (context) => CartPage(name, imageUrl, price),
-            //   ),
-            // ),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => CartPage(),
+              ),
+            ),
           ),
         ],
       ),

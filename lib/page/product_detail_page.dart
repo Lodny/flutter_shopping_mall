@@ -70,7 +70,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    CartPage(widget.name, widget.imageUrl, widget.price),
+                    CartPage(name: widget.name, imageUrl: widget.imageUrl, price: widget.price),
               ),
             );
           },
