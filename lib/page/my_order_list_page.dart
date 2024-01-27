@@ -61,7 +61,7 @@ class _MyOrderListPageState extends State<MyOrderListPage> {
         padding: const EdgeInsets.all(20),
         child: FilledButton(
           child: Text('홈으로'),
-          onPressed: (){},
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
     );
@@ -77,6 +77,15 @@ class _MyOrderListPageState extends State<MyOrderListPage> {
       padding: const EdgeInsets.all(8),
       child: Column(
         children: [
+          Container(
+            alignment: Alignment.topLeft,
+            child: Text(
+              '주문날짜: ${order.orderDate}',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
