@@ -3,9 +3,9 @@ enum DeliveryStatus {
   delivering('delivering', '배송중'),
   delivered('delivered', '배송완료');
 
-  const DeliveryStatus(this.status, this.statusName);
+  const DeliveryStatus(this.status, this.name);
   final String status;
-  final String statusName;
+  final String name;
 
   factory DeliveryStatus.byStatus(String status) =>
       DeliveryStatus.values.firstWhere((delivery) =>

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_shopping_mall/page/cart_page.dart';
+import 'package:flutter_shopping_mall/page/my_order_list_page.dart';
 import 'package:flutter_shopping_mall/page/product_detail_page.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -20,6 +22,29 @@ class _ItemListPageState extends State<ItemListPage> {
       appBar: AppBar(
         title: Text('제품 리스트'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => MyOrderListPage(),
+              ),
+            ),
+            icon: Icon(
+              Icons.account_circle,
+            ),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.shopping_cart,
+            ),
+            onPressed: (){},
+            // onPressed: () => Navigator.of(context).push(
+            //   MaterialPageRoute(
+            //     builder: (context) => CartPage(name, imageUrl, price),
+            //   ),
+            // ),
+          ),
+        ],
       ),
       body: GridView.builder(
         itemCount: productList.length,
@@ -33,7 +58,8 @@ class _ItemListPageState extends State<ItemListPage> {
             imageUrl: productList[index].imageUrl ?? '',
             price: productList[index].price ?? 0.0,
           );
-        },),
+        },
+      ),
     );
   }
 
