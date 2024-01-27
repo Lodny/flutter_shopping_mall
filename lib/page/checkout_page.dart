@@ -123,7 +123,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
               return;
             }
 
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => OrderResultPage(),));
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
+                OrderResultPage(
+                  paymentMethod: paymentMethodList[_selectedPaymentIndex],
+                  paymentAmount: totalPrice,
+                  zip: _receiverZipController.text,
+                  address1: _receiverAddress1Controller.text,
+                  address2: _receiverAddress2Controller.text,
+                  receiveName: _receiverNameController.text,
+                  receivePhone: _receiverPhoneController.text,
+                ),
+              ),
+            );
           },
           child: Text(
             '합계: ${numberFormat.format(totalPrice)}원 결재하기',
