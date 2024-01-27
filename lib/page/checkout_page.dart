@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_shopping_mall/component/basic_dialog.dart';
+import 'package:flutter_shopping_mall/page/order_result_page.dart';
 import 'package:kpostal/kpostal.dart';
 
 import '../data/product_data.dart';
@@ -66,47 +67,64 @@ class _CheckoutPageState extends State<CheckoutPage> {
               itemBuilder: (context, index) => _checkoutContainer(cartList[index]),
             ),
             // 입력폼
-            _getTextFormFiled(_buyerNameController, '주문자명'),
-            _getTextFormFiled(_buyerEmailController, '주문자 이메일'),
-            _getTextFormFiled(_buyerPhoneController, '주문자 휴대전화'),
-
-            _getTextFormFiled(_receiverNameController, '받는 사람 이름'),
-            _getTextFormFiled(_receiverPhoneController, '받는 사람 휴대 전화'),
-
-            _receiverZipTextField(),
-            _getTextFormFiled(_receiverAddress1Controller, '기본 주소', readOnly: true),
-            _getTextFormFiled(_receiverAddress2Controller, '상세 주소'),
-
-            _getTextFormFiled(_userPwdController, '비회원 주문조회 비밀번호', obscureText: true),
-            _getTextFormFiled(_userConfirmPwdController, '비회원 주문조회 비밀번호 확인', obscureText: true),
-
-            _paymentMethodDropdownButton(),
-            if (_selectedPaymentIndex == 1)
-              Column(
+            Form(
+              key: formkey,
+              child: Column(
                 children: [
-                  _getTextFormFiled(_cardNoController, '카드번호'),
-                  _getTextFormFiled(_cardAuthController, '카드명의자 주민번호 앞자리', maxLength: 10),
-                  _getTextFormFiled(_cardExpiredDateController, '카드 만료일 (YYYYMM)', maxLength: 6),
-                  _getTextFormFiled(_cardPwdTwoDigitsController, '카드 비밀번호 앞2자리', obscureText: true, maxLength: 2),
+                  _getTextFormFiled(_buyerNameController, '주문자명'),
+                  _getTextFormFiled(_buyerEmailController, '주문자 이메일'),
+                  _getTextFormFiled(_buyerPhoneController, '주문자 휴대전화'),
+
+                  _getTextFormFiled(_receiverNameController, '받는 사람 이름'),
+                  _getTextFormFiled(_receiverPhoneController, '받는 사람 휴대 전화'),
+
+                  _receiverZipTextField(),
+                  _getTextFormFiled(_receiverAddress1Controller, '기본 주소', readOnly: true),
+                  _getTextFormFiled(_receiverAddress2Controller, '상세 주소'),
+
+                  _getTextFormFiled(_userPwdController, '비회원 주문조회 비밀번호', obscureText: true),
+                  _getTextFormFiled(_userConfirmPwdController, '비회원 주문조회 비밀번호 확인', obscureText: true),
+
+                  _paymentMethodDropdownButton(),
+                  if (_selectedPaymentIndex == 1)
+                    Column(
+                      children: [
+                        _getTextFormFiled(_cardNoController, '카드번호'),
+                        _getTextFormFiled(_cardAuthController, '카드명의자 주민번호 앞자리', maxLength: 10),
+                        _getTextFormFiled(_cardExpiredDateController, '카드 만료일 (YYYYMM)', maxLength: 6),
+                        _getTextFormFiled(_cardPwdTwoDigitsController, '카드 비밀번호 앞2자리', obscureText: true, maxLength: 2),
+                      ],
+                    )
+                  else if (_selectedPaymentIndex == 2)
+                    _getTextFormFiled(_depositNameController, '입금자명'),
                 ],
-              )
-            else if (_selectedPaymentIndex == 2)
-              _getTextFormFiled(_depositNameController, '입금자명'),
+              ),
+            ),
           ],
         ),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(20),
         child: FilledButton(
-          onPressed: () => showDialog(
-            context: context,
-            builder: (context) => BasicDialog(
-              content: '결재수단을 선택해 주세요.',
-              buttonText: '닫기',
-              buttonFunction: () => Navigator.of(context).pop(),
-            ),
-            barrierDismissible: true,
-          ),
+          onPressed: () {
+            if (! formkey.currentState!.validate()) return;
+
+            if (_selectedPaymentIndex == 0) {
+              showDialog(
+                context: context,
+                builder: (context) =>
+                    BasicDialog(
+                      content: '결재수단을 선택해 주세요.',
+                      buttonText: '닫기',
+                      buttonFunction: () => Navigator.of(context).pop(),
+                    ),
+                barrierDismissible: true,
+              );
+              return;
+            }
+
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => OrderResultPage(),));
+          },
           child: Text(
             '합계: ${numberFormat.format(totalPrice)}원 결재하기',
           ),
