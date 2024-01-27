@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_shopping_mall/component/basic_dialog.dart';
 import 'package:kpostal/kpostal.dart';
 
 import '../data/product_data.dart';
@@ -57,7 +58,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-
         child: Column(
           children: [
             ListView.builder(
@@ -93,6 +93,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
             else if (_selectedPaymentIndex == 2)
               _getTextFormFiled(_depositNameController, '입금자명'),
           ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(20),
+        child: FilledButton(
+          onPressed: () => showDialog(
+            context: context,
+            builder: (context) => BasicDialog(
+              content: '결재수단을 선택해 주세요.',
+              buttonText: '닫기',
+              buttonFunction: () => Navigator.of(context).pop(),
+            ),
+            barrierDismissible: true,
+          ),
+          child: Text(
+            '합계: ${numberFormat.format(totalPrice)}원 결재하기',
+          ),
         ),
       ),
     );
