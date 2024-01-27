@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:kpostal/kpostal.dart';
 
 import '../data/product_data.dart';
 import '../util/util.dart';
@@ -192,12 +193,41 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Widget _receiverZipTextField() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: receiverZipController,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "우편번호",
-        ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              readOnly: true,
+              controller: receiverZipController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: "우편번호",
+              ),
+            ),
+          ),
+          SizedBox(width: 15,),
+          FilledButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => KpostalView(
+                  callback: (result) {
+                    receiverZipController.text = result.postCode;
+                    receiverAddress1Controller.text = result.address;
+                  },
+                ),
+              ),
+            ),
+            style: FilledButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              )
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 22),
+              child: Text('우편 번호 찾기'),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -206,6 +236,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
+        readOnly: true,
         controller: receiverAddress1Controller,
         decoration: const InputDecoration(
           border: OutlineInputBorder(),

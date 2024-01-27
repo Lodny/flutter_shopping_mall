@@ -31,4 +31,14 @@ List<Product> productList = [
       name: "책(book)",
       imageUrl: "https://picsum.photos/id/24/200/300",
       price: 24000),
+  Product(
+      no: 7,
+      name: "노트북(laptop) 2",
+      imageUrl: "https://picsum.photos/id/2/200/300",
+      price: 750000),
+  Product(
+      no: 8,
+      name: "스마트폰(Phone)",
+      imageUrl: "https://picsum.photos/id/7/200/300",
+      price: 990000),
 ];
