@@ -41,6 +41,7 @@ class _OrderResultPageState extends State<OrderResultPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white.withOpacity(0.9),
       appBar: AppBar(
         title: Text('주문완료',),
         centerTitle: true,
@@ -65,6 +66,7 @@ class _OrderResultPageState extends State<OrderResultPage> {
                   ),
 
                 Container(
+                  color: Colors.white,
                   margin: const EdgeInsets.all(30),
                   child: Column(
                     children: [
