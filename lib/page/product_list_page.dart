@@ -1,14 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_shopping_mall/model/product.dart';
 import 'package:flutter_shopping_mall/page/cart_page.dart';
 import 'package:flutter_shopping_mall/page/my_order_list_page.dart';
 import 'package:flutter_shopping_mall/page/product_detail_page.dart';
-import 'package:intl/intl.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../data/product_data.dart';
 import '../util/util.dart';
 
 class ItemListPage extends StatefulWidget {
@@ -19,13 +14,7 @@ class ItemListPage extends StatefulWidget {
 }
 
 class _ItemListPageState extends State<ItemListPage> {
-
-  final _productListRef = FirebaseFirestore.instance
-    .collection('products')
-    .withConverter(
-      fromFirestore: (snapshot, _) => Product.fromJson(snapshot.data()!),
-      toFirestore: (product, _) => product.toJson(),
-    );
+  final _productListRef = getProductCollectionReference();
 
   @override
   Widget build(BuildContext context) {

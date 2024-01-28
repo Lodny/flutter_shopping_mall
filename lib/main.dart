@@ -12,6 +12,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await initSharedPreferences();
+  initProductCollectionReference();
 
   runApp(const MyApp());
 }
