@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_shopping_mall/component/basic_dialog.dart';
 import 'package:flutter_shopping_mall/enum/payment_type.dart';
+import 'package:flutter_shopping_mall/model/product.dart';
 import 'package:flutter_shopping_mall/page/order_result_page.dart';
 import 'package:kpostal/kpostal.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,23 +21,36 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  late SharedPreferences? _prefs;
   Map<String, dynamic> _cartMap = {};
+  late SharedPreferences? _prefs;
+  Stream<QuerySnapshot<Product>>? _productList;
+
 
   @override
   void initState() {
-    _prefs = getSharedPreferences();
-    _cartMap = jsonDecode(_prefs!.getString('cartMap') ?? '{}') ?? {};
-
     super.initState();
+
+    try {
+      _prefs = getSharedPreferences();
+      _cartMap = jsonDecode(_prefs!.getString('cartMap') ?? '{}') ?? {};
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+
+    if (_cartMap.isEmpty) return;
+
+    _productList = getProductCollectionReference()
+        .where('no',
+      whereIn: _cartMap.keys
+          .map((key) => int.parse(key),)
+          .toList(),
+    )
+        .orderBy('no')
+        .snapshots();
   }
 
   final formkey = GlobalKey<FormState>();
 
-  double get totalPrice => _cartMap.entries.fold(0.0, (total, cart) {
-    final foundProduct = productList.firstWhere((product) => product.no == int.parse(cart.key));
-    return total + (foundProduct.price ?? 0) * cart.value;
-  });
 
   // controller 변수 추가
   TextEditingController _buyerNameController = TextEditingController();
@@ -68,19 +83,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // ListView.builder(
-            //   itemCount: _cartMap.length,
-            //   shrinkWrap: true,
-            //   itemBuilder: (context, index) => _checkoutContainer(cartList[index]),
-            //   itemBuilder: (context, index) => {
-            //       int no = int.parse(_cartMap.keys.elementAt(index));
-            //       final foundProduct = productList.firstWhere((product) =>
-            //       product.no == int.parse(cart.key));
-            //       _checkoutContainer(_cartList[no]),
-            //   },
-            // ),
-            ..._cartMap.entries
-                .map((cart) => _checkoutContainer(cart)).toList(),
+            _cartMap.isEmpty
+              ? Container()
+              : StreamBuilder(
+              stream: _productList,
+              builder: (context, snapshot) {
+                if (snapshot.hasError)
+                  return Center(child: Text('오류가 발생 했습니다.'),);
+                if (!snapshot.hasData) return Center(
+                  child: CircularProgressIndicator(strokeWidth: 2,),);
+
+                return ListView(
+                  shrinkWrap: true,
+                  children: snapshot.data!.docs.map((doc) {
+                    final product = doc.data();
+                    if (_cartMap[product.no.toString()] == null)
+                      return Container();
+
+                    return _checkoutContainer(
+                        product,
+                        _cartMap.entries.firstWhere((cart) => cart.key == product.no.toString()),
+                    );
+                  },).toList(),
+                );
+              },
+            ),
             // 입력폼
             Form(
               key: formkey,
@@ -118,54 +145,70 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ],
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(20),
-        child: FilledButton(
-          onPressed: () {
-            if (! formkey.currentState!.validate()) return;
+      bottomNavigationBar:  _cartMap.isEmpty
+        ? Center(child: Text('결제할 제품이 없습니다.'),)
+        : StreamBuilder(
+          stream: _productList,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) return Center(child: Text('오류가 발생 했습니다.'),);
+            if (! snapshot.hasData) return Center(child: CircularProgressIndicator(strokeWidth: 2,),);
 
-            if (_selectedPaymentType == PaymentType.select) {
-              showDialog(
-                context: context,
-                builder: (context) =>
-                    BasicDialog(
-                      content: '결제수단을 선택해 주세요.',
-                      buttonText: '닫기',
-                      buttonFunction: () => Navigator.of(context).pop(),
+            final totalPrice = snapshot.data?.docs.fold(0.0, (total, doc) {
+                final product = doc.data();
+                if (_cartMap[product.no.toString()] == null) return total;
+
+                return total + (product.price ?? 0) * _cartMap[product.no.toString()];
+              },
+            );
+
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: FilledButton(
+                onPressed: () {
+                  if (! formkey.currentState!.validate()) return;
+
+                  if (_selectedPaymentType == PaymentType.select) {
+                    showDialog(
+                      context: context,
+                      builder: (context) =>
+                          BasicDialog(
+                            content: '결제수단을 선택해 주세요.',
+                            buttonText: '닫기',
+                            buttonFunction: () => Navigator.of(context).pop(),
+                          ),
+                      barrierDismissible: true,
+                    );
+                    return;
+                  }
+
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
+                      OrderResultPage(
+                        paymentType: _selectedPaymentType,
+                        paymentAmount: totalPrice!,
+                        zip: _receiverZipController.text,
+                        address1: _receiverAddress1Controller.text,
+                        address2: _receiverAddress2Controller.text,
+                        receiveName: _receiverNameController.text,
+                        receivePhone: _receiverPhoneController.text,
+                      ),
                     ),
-                barrierDismissible: true,
-              );
-              return;
-            }
-
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
-                OrderResultPage(
-                  paymentType: _selectedPaymentType,
-                  paymentAmount: totalPrice,
-                  zip: _receiverZipController.text,
-                  address1: _receiverAddress1Controller.text,
-                  address2: _receiverAddress2Controller.text,
-                  receiveName: _receiverNameController.text,
-                  receivePhone: _receiverPhoneController.text,
+                  );
+                },
+                child: Text(
+                  '합계: ${numberFormat.format(totalPrice)}원 결제하기',
                 ),
               ),
             );
-          },
-          child: Text(
-            '합계: ${numberFormat.format(totalPrice)}원 결제하기',
-          ),
+          }
         ),
-      ),
     );
   }
 
-  Widget _checkoutContainer(MapEntry<String, dynamic> cart) {
-    print(cart);
+  Widget _checkoutContainer(Product product, MapEntry<String, dynamic> cart) {
+    print('> product : ${product}');
+    print('> cart : ${cart}');
 
-    final foundProduct = productList.firstWhere((product) =>
-      product.no == int.parse(cart.key));
-
-    return foundProduct == null
+    return product == null
         ? Container()
         : Container(
             padding: const EdgeInsets.all(8),
@@ -173,8 +216,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CachedNetworkImage(
-                  imageUrl: foundProduct.imageUrl!,
+                  imageUrl: product.imageUrl!,
                   width: MediaQuery.of(context).size.width * .3,
+                  height: 130,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Center(
                     child: CircularProgressIndicator(
@@ -192,15 +236,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        foundProduct.name!,
+                        product.name!,
                         textScaleFactor: 1.2,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Text('${numberFormat.format(foundProduct.price)}'),
+                      Text('${numberFormat.format(product.price)}'),
                       Text('수량: ${cart.value}',),
-                      Text('합계: ${numberFormat.format(foundProduct.price! * cart.value)}원',),
+                      Text('합계: ${numberFormat.format(product.price! * cart.value)}원',),
                     ],
                   ),
                 )

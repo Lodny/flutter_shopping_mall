@@ -116,6 +116,7 @@ class _CartPageState extends State<CartPage> {
           CachedNetworkImage(
             imageUrl: product.imageUrl!,
             width: MediaQuery.of(context).size.width * .3,
+            height: 130,
             fit: BoxFit.cover,
             placeholder: (context, url) => Center(
               child: CircularProgressIndicator(
