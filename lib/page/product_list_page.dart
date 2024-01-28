@@ -4,6 +4,7 @@ import 'package:flutter_shopping_mall/page/my_order_list_page.dart';
 import 'package:flutter_shopping_mall/page/product_detail_page.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/product_data.dart';
 import '../util/util.dart';

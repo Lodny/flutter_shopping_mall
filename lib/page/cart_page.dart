@@ -1,10 +1,12 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_shopping_mall/page/checkout_page.dart';
 import 'package:flutter_shopping_mall/util/util.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/product_data.dart';
-import '../model/product.dart';
 
 class CartPage extends StatefulWidget {
   CartPage({super.key});
@@ -19,8 +21,30 @@ class _CartPageState extends State<CartPage> {
     (4, 3),
   ];
 
-  double get totalPrice => cartList.fold(0.0, (total, cart) =>
+  Map<String, dynamic> _cartMap = {};
+  late SharedPreferences? _prefs;
+
+  @override
+  void initState() {
+    _initializeSharedPreferences();
+    super.initState();
+  }
+
+  Future<void> _initializeSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    if (_prefs == null) return;
+
+    setState(() {
+      _cartMap = jsonDecode(_prefs!.getString('cartMap') ?? '{}');
+      print(_cartMap);
+    });
+  }
+
+  double get totalPrice2 => cartList.fold(0.0, (total, cart) =>
       total + productList[cart.$1].price! * cart.$2);
+
+  double get totalPrice => _cartMap.entries.fold(0.0, (total, cart) =>
+    total + productList[int.parse(cart.key)].price! * (cart.value as int));
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +58,9 @@ class _CartPageState extends State<CartPage> {
       body: Center(
         child: Column(
           children: [
-            ...cartList
+            // ...cartList
+            //     .map((cart) => cartContainer(cart)).toList(),
+            ..._cartMap.entries
                 .map((cart) => cartContainer(cart)).toList(),
           ],
         ),
@@ -49,10 +75,10 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget cartContainer((int, int) cart) {
-    print(cart);
+  Widget cartContainer(MapEntry<String, dynamic> cart) {
+    print('cartContainer() : ' + cart.toString());
 
-    var foundProduct = productList.firstWhere((product) => product.no == cart.$1);
+    var foundProduct = productList.firstWhere((product) => product.no == int.parse(cart.key));
 
     return foundProduct == null
         ? Container()
@@ -95,7 +121,7 @@ class _CartPageState extends State<CartPage> {
                             onPressed: () {},
                             icon: Icon(Icons.remove),
                           ),
-                          Text('${cart.$2}',),
+                          Text('${cart.value as int}',),
                           IconButton(
                             onPressed: () {},
                             icon: Icon(Icons.add),
@@ -106,7 +132,7 @@ class _CartPageState extends State<CartPage> {
                           ),
                         ],
                       ),
-                      Text('합계: ${numberFormat.format(foundProduct.price! * cart.$2)}원',),
+                      Text('합계: ${numberFormat.format(foundProduct.price! * (cart.value as int))}원',),
                     ],
                   ),
                 )
