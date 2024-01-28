@@ -7,16 +7,7 @@ import '../data/product_data.dart';
 import '../model/product.dart';
 
 class CartPage extends StatefulWidget {
-  CartPage({
-    this.name,
-    this.imageUrl,
-    this.price,
-    super.key
-  });
-
-  String? name;
-  String? imageUrl;
-  double? price;
+  CartPage({super.key});
 
   @override
   State<CartPage> createState() => _CartPageState();

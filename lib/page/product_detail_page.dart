@@ -1,11 +1,16 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../util/util.dart';
 import 'cart_page.dart';
 
 class ProductDetailPage extends StatefulWidget {
-  ProductDetailPage(this.name, this.imageUrl, this.price, {super.key});
+  ProductDetailPage(this.no, this.name, this.imageUrl, this.price, {super.key});
+  int no;
   String name;
   String imageUrl;
   double price;
@@ -15,6 +20,7 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
+  int _count = 1;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,20 +64,59 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   textScaleFactor: 1.3,
                 ),
               ],
-            )
+            ),
+            SizedBox(height: 20,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('수량:',),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _count = max(1, _count - 1);
+                    });
+                  },
+                  icon: Icon(Icons.remove),
+                ),
+                Text('${_count}',),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _count++;
+                    });
+                  },
+                  icon: Icon(Icons.add),
+                ),
+                IconButton(
+                  onPressed: () {
+                    print('delete');
+                  },
+                  icon: Icon(Icons.delete),
+                ),
+              ],
+            ),
+            Text('합계: ${numberFormat.format(widget.price * _count)}원',),
           ],
         ),
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(20),
         child: FilledButton(
-          onPressed: () {
+          onPressed: () async {
+            final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+            Map<String, dynamic> cartMap = {};
+            final String? cartListString = prefs.getString('cartMap');
+            print(cartListString);
+            if (cartListString != null)
+              cartMap = jsonDecode(cartListString);
+            print('>> after read : ' + cartMap.toString());
+            cartMap.update(widget.no.toString(), (count) => _count, ifAbsent: () => _count);
+            print('>> after update : ' + cartMap.toString());
+
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    CartPage(name: widget.name, imageUrl: widget.imageUrl, price: widget.price),
-              ),
+              MaterialPageRoute(builder: (context) => CartPage(),),
             );
           },
           child: Text(

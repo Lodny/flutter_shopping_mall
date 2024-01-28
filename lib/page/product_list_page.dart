@@ -53,6 +53,7 @@ class _ItemListPageState extends State<ItemListPage> {
         ),
         itemBuilder: (context, index) {
           return productContainer(
+            no: productList[index].no ?? 0,
             name: productList[index].name ?? '',
             imageUrl: productList[index].imageUrl ?? '',
             price: productList[index].price ?? 0.0,
@@ -63,6 +64,7 @@ class _ItemListPageState extends State<ItemListPage> {
   }
 
   Widget productContainer({
+    required int no,
     required String name,
     required String imageUrl,
     required double price}) {
@@ -70,7 +72,7 @@ class _ItemListPageState extends State<ItemListPage> {
       onTap: () {
         print('product: ' + name);
         Navigator.push(context, MaterialPageRoute(
-          builder: (context) => ProductDetailPage(name, imageUrl, price),
+          builder: (context) => ProductDetailPage(no, name, imageUrl, price),
         ));
       },
       child: Container(
