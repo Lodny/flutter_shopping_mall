@@ -20,7 +20,8 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-  int _count = 1;
+  int _quantity = 1;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,69 +35,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: 20,),
-              CachedNetworkImage(
-                width: MediaQuery.of(context).size.width * .8,
-                fit: BoxFit.cover,
-                imageUrl: widget.imageUrl,
-                placeholder: (context, url) => Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                  ),
-                ),
-                errorWidget: (context, url, error) => Center(
-                  child: Text('오류 발생'),
-                ),
-              ),
-              SizedBox(height: 20,),
-              Text(
-                widget.name,
-                textScaleFactor: 1.5,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '가격: ${numberFormat.format(widget.price)}원',
-                    textScaleFactor: 1.3,
-                  ),
-                ],
-              ),
-              SizedBox(height: 20,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('수량:',),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _count = max(1, _count - 1);
-                      });
-                    },
-                    icon: Icon(Icons.remove),
-                  ),
-                  Text('${_count}',),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _count++;
-                      });
-                    },
-                    icon: Icon(Icons.add),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      print('delete');
-                    },
-                    icon: Icon(Icons.delete),
-                  ),
-                ],
-              ),
-              Text('합계: ${numberFormat.format(widget.price * _count)}원',),
+              SizedBox(height: 15,),
+              _productImage(context),
+              SizedBox(height: 15,),
+              _productName(),
+              SizedBox(height: 15,),
+              _productPrice(),
+              SizedBox(height: 15,),
+              _productQuantity(),
+              _productTotalPrice(),
             ],
           ),
         ),
@@ -105,16 +52,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         padding: EdgeInsets.all(20),
         child: FilledButton(
           onPressed: () async {
-            final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-            Map<String, dynamic> cartMap = {};
-            final String? cartListString = prefs.getString('cartMap');
-            print(cartListString);
-            if (cartListString != null)
-              cartMap = jsonDecode(cartListString);
+            final SharedPreferences prefs = getSharedPreferences();
+            Map<String, dynamic> cartMap = jsonDecode(prefs.getString('cartMap') ?? '{}') ?? {};
             print('>> after read : ' + cartMap.toString());
 
-            cartMap.update(widget.no.toString(), (count) => _count, ifAbsent: () => _count);
+            cartMap.update(widget.no.toString(), (count) => _quantity + (count as int), ifAbsent: () => _quantity);
             print('>> after update : ' + cartMap.toString());
             prefs.setString('cartMap', jsonEncode(cartMap));
 
@@ -127,6 +69,82 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               '장바구니 담기',
           ),
         ),
+      ),
+    );
+  }
+
+  Text _productTotalPrice() => Text(
+        '합계: ${numberFormat.format(widget.price * _quantity)}원',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+        textScaleFactor: 1.3,
+      );
+
+  Row _productQuantity() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          '수량:',
+        ),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              _quantity = max(1, _quantity - 1);
+            });
+          },
+          icon: Icon(Icons.remove),
+        ),
+        Text(
+          '${_quantity}',
+        ),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              _quantity++;
+            });
+          },
+          icon: Icon(Icons.add),
+        ),
+      ],
+    );
+  }
+
+  Row _productPrice() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          '가격: ${numberFormat.format(widget.price)}원',
+          textScaleFactor: 1.3,
+        ),
+      ],
+    );
+  }
+
+  Text _productName() {
+    return Text(
+      widget.name,
+      textScaleFactor: 1.5,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  CachedNetworkImage _productImage(BuildContext context) {
+    return CachedNetworkImage(
+      width: MediaQuery.of(context).size.width * .7,
+      fit: BoxFit.cover,
+      imageUrl: widget.imageUrl,
+      placeholder: (context, url) => Center(
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+        ),
+      ),
+      errorWidget: (context, url, error) => Center(
+        child: Text('오류 발생'),
       ),
     );
   }

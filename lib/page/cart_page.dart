@@ -26,18 +26,10 @@ class _CartPageState extends State<CartPage> {
 
   @override
   void initState() {
-    _initializeSharedPreferences();
+    final _prefs = getSharedPreferences();
+    _cartMap = jsonDecode(_prefs.getString('cartMap') ?? '{}') ?? {};
+
     super.initState();
-  }
-
-  Future<void> _initializeSharedPreferences() async {
-    _prefs = await SharedPreferences.getInstance();
-    if (_prefs == null) return;
-
-    setState(() {
-      _cartMap = jsonDecode(_prefs!.getString('cartMap') ?? '{}');
-      print(_cartMap);
-    });
   }
 
   double get totalPrice2 => cartList.fold(0.0, (total, cart) =>
