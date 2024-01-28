@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -26,14 +27,11 @@ class _CartPageState extends State<CartPage> {
 
   @override
   void initState() {
-    final _prefs = getSharedPreferences();
-    _cartMap = jsonDecode(_prefs.getString('cartMap') ?? '{}') ?? {};
+    _prefs = getSharedPreferences();
+    _cartMap = jsonDecode(_prefs!.getString('cartMap') ?? '{}') ?? {};
 
     super.initState();
   }
-
-  double get totalPrice2 => cartList.fold(0.0, (total, cart) =>
-      total + productList[cart.$1].price! * cart.$2);
 
   double get totalPrice => _cartMap.entries.fold(0.0, (total, cart) =>
     total + productList[int.parse(cart.key)].price! * cart.value);
@@ -49,12 +47,9 @@ class _CartPageState extends State<CartPage> {
       ),
       body: Center(
         child: Column(
-          children: [
-            // ...cartList
-            //     .map((cart) => cartContainer(cart)).toList(),
-            ..._cartMap.entries
+          children: _cartMap.entries
                 .map((cart) => cartContainer(cart)).toList(),
-          ],
+
         ),
       ),
       bottomNavigationBar: Padding(
@@ -110,12 +105,26 @@ class _CartPageState extends State<CartPage> {
                         children: [
                           Text('수량:',),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              setState(() {
+                                _cartMap[cart.key] = max(1, (cart.value as int) - 1);
+                                print('> after dec : ' + _cartMap.toString());
+                                _prefs!.setString('cartMap', jsonEncode(_cartMap));
+                              });
+                            },
                             icon: Icon(Icons.remove),
                           ),
                           Text('${cart.value as int}',),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              setState(() {
+                                setState(() {
+                                  _cartMap[cart.key] = cart.value + 1;
+                                  print('> after inc : ' + _cartMap.toString());
+                                  _prefs!.setString('cartMap', jsonEncode(_cartMap));
+                                });
+                              });
+                            },
                             icon: Icon(Icons.add),
                           ),
                           IconButton(
