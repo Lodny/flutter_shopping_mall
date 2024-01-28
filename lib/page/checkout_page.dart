@@ -72,6 +72,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
             //   itemCount: _cartMap.length,
             //   shrinkWrap: true,
             //   itemBuilder: (context, index) => _checkoutContainer(cartList[index]),
+            //   itemBuilder: (context, index) => {
+            //       int no = int.parse(_cartMap.keys.elementAt(index));
+            //       final foundProduct = productList.firstWhere((product) =>
+            //       product.no == int.parse(cart.key));
+            //       _checkoutContainer(_cartList[no]),
+            //   },
             // ),
             ..._cartMap.entries
                 .map((cart) => _checkoutContainer(cart)).toList(),
