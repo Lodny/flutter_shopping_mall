@@ -17,11 +17,6 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  List<(int, int)> cartList = [
-    (1, 2),
-    (4, 3),
-  ];
-
   Map<String, dynamic> _cartMap = {};
   late SharedPreferences? _prefs;
 
@@ -33,8 +28,10 @@ class _CartPageState extends State<CartPage> {
     super.initState();
   }
 
-  double get totalPrice => _cartMap.entries.fold(0.0, (total, cart) =>
-    total + productList[int.parse(cart.key)].price! * cart.value);
+  double get totalPrice => _cartMap.entries.fold(0.0, (total, cart) {
+    final foundProduct = productList.firstWhere((product) => product.no == int.parse(cart.key));
+    return total + (foundProduct.price ?? 0) * cart.value;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -106,9 +103,11 @@ class _CartPageState extends State<CartPage> {
                           Text('수량:',),
                           IconButton(
                             onPressed: () {
+                              _cartMap[cart.key] = max(1, (cart.value as int) - 1);
+                              if (_cartMap[cart.key] == cart.value) return;
+
+                              print('> after dec : ' + _cartMap.toString());
                               setState(() {
-                                _cartMap[cart.key] = max(1, (cart.value as int) - 1);
-                                print('> after dec : ' + _cartMap.toString());
                                 _prefs!.setString('cartMap', jsonEncode(_cartMap));
                               });
                             },
@@ -118,9 +117,10 @@ class _CartPageState extends State<CartPage> {
                           IconButton(
                             onPressed: () {
                               setState(() {
+                                _cartMap[cart.key] = cart.value + 1;
+                                print('> after inc : ' + _cartMap.toString());
+
                                 setState(() {
-                                  _cartMap[cart.key] = cart.value + 1;
-                                  print('> after inc : ' + _cartMap.toString());
                                   _prefs!.setString('cartMap', jsonEncode(_cartMap));
                                 });
                               });

@@ -29,11 +29,6 @@ class OrderResultPage extends StatefulWidget {
 }
 
 class _OrderResultPageState extends State<OrderResultPage> {
-  List<(int, int)> cartList = [
-    (1, 2),
-    (4, 3),
-  ];
-
   String generateOrderNumber() {
     final dateTime = DateTime.now();
     return '${dateTime.year}${dateTime.month}${dateTime.day}-${dateTime

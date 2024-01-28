@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_shopping_mall/component/basic_dialog.dart';
 import 'package:flutter_shopping_mall/enum/payment_type.dart';
 import 'package:flutter_shopping_mall/page/order_result_page.dart';
 import 'package:kpostal/kpostal.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/product_data.dart';
 import '../util/util.dart';
@@ -16,15 +19,23 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  List<(int, int)> cartList = [
-    (1, 2),
-    (4, 3),
-  ];
+  late SharedPreferences? _prefs;
+  Map<String, dynamic> _cartMap = {};
+
+  @override
+  void initState() {
+    _prefs = getSharedPreferences();
+    _cartMap = jsonDecode(_prefs!.getString('cartMap') ?? '{}') ?? {};
+
+    super.initState();
+  }
 
   final formkey = GlobalKey<FormState>();
 
-  double get totalPrice => cartList.fold(
-      0.0, (total, cart) => total + productList[cart.$1].price! * cart.$2);
+  double get totalPrice => _cartMap.entries.fold(0.0, (total, cart) {
+    final foundProduct = productList.firstWhere((product) => product.no == int.parse(cart.key));
+    return total + (foundProduct.price ?? 0) * cart.value;
+  });
 
   // controller 변수 추가
   TextEditingController _buyerNameController = TextEditingController();
@@ -57,11 +68,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            ListView.builder(
-              itemCount: cartList.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) => _checkoutContainer(cartList[index]),
-            ),
+            // ListView.builder(
+            //   itemCount: _cartMap.length,
+            //   shrinkWrap: true,
+            //   itemBuilder: (context, index) => _checkoutContainer(cartList[index]),
+            // ),
+            ..._cartMap.entries
+                .map((cart) => _checkoutContainer(cart)).toList(),
             // 입력폼
             Form(
               key: formkey,
@@ -140,11 +153,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Widget _checkoutContainer((int, int) cart) {
+  Widget _checkoutContainer(MapEntry<String, dynamic> cart) {
     print(cart);
 
-    var foundProduct = productList.firstWhere((product) =>
-    product.no == cart.$1);
+    final foundProduct = productList.firstWhere((product) =>
+      product.no == int.parse(cart.key));
 
     return foundProduct == null
         ? Container()
@@ -180,8 +193,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                       ),
                       Text('${numberFormat.format(foundProduct.price)}'),
-                      Text('수량: ${cart.$2}',),
-                      Text('합계: ${numberFormat.format(foundProduct.price! * cart.$2)}원',),
+                      Text('수량: ${cart.value}',),
+                      Text('합계: ${numberFormat.format(foundProduct.price! * cart.value)}원',),
                     ],
                   ),
                 )
