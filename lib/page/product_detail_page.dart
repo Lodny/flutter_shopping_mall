@@ -56,7 +56,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             Map<String, dynamic> cartMap = jsonDecode(prefs.getString('cartMap') ?? '{}') ?? {};
             print('>> after read : ' + cartMap.toString());
 
-            cartMap.update(widget.no.toString(), (count) => _quantity + (count as int), ifAbsent: () => _quantity);
+            cartMap.update(widget.no.toString(), (count) => _quantity + count, ifAbsent: () => _quantity);
             print('>> after update : ' + cartMap.toString());
             prefs.setString('cartMap', jsonEncode(cartMap));
 

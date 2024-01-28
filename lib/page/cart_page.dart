@@ -36,7 +36,7 @@ class _CartPageState extends State<CartPage> {
       total + productList[cart.$1].price! * cart.$2);
 
   double get totalPrice => _cartMap.entries.fold(0.0, (total, cart) =>
-    total + productList[int.parse(cart.key)].price! * (cart.value as int));
+    total + productList[int.parse(cart.key)].price! * cart.value);
 
   @override
   Widget build(BuildContext context) {
