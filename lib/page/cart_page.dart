@@ -82,6 +82,8 @@ class _CartPageState extends State<CartPage> {
 
               final totalPrice = snapshot.data?.docs.fold(0.0, (total, doc) {
                   final product = doc.data();
+                  if (_cartMap[product.no.toString()] == null) return total;
+
                   return total + (product.price ?? 0) * _cartMap[product.no.toString()];
                 },
               );
@@ -175,7 +177,13 @@ class _CartPageState extends State<CartPage> {
                       icon: Icon(Icons.add),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _cartMap.remove(cart.key);
+                        print('> after del : ' + _cartMap.toString());
+                        setState(() {
+                          _prefs!.setString('cartMap', jsonEncode(_cartMap));
+                        });
+                      },
                       icon: Icon(Icons.delete),
                     ),
                   ],
