@@ -8,18 +8,18 @@ class Product {
   Product({this.no, this.name, this.detail, this.imageUrl, this.price});
 
   Product.fromJson(Map<String, dynamic> json) {
-    no = int.parse(json['no']);
+    no = json['no'];
     name = json['name'];
-    detail = json['detail'];
     imageUrl = json['imageUrl'];
-    price = double.parse(json['price']);
+    price = (json['price'] as int).toDouble();
+    price = (json['price'] as int).toDouble();
   }
 
   Map<String, dynamic> toJson() {
     return {
       'no': no,
       'name': name,
-      'detail': detail,
+      // 'detail': detail,
       'imageUrl': imageUrl,
       'price': price,
     };

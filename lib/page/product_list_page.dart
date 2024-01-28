@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_shopping_mall/model/product.dart';
 import 'package:flutter_shopping_mall/page/cart_page.dart';
 import 'package:flutter_shopping_mall/page/my_order_list_page.dart';
 import 'package:flutter_shopping_mall/page/product_detail_page.dart';
@@ -17,6 +19,14 @@ class ItemListPage extends StatefulWidget {
 }
 
 class _ItemListPageState extends State<ItemListPage> {
+
+  final _productListRef = FirebaseFirestore.instance
+    .collection('products')
+    .withConverter(
+      fromFirestore: (snapshot, _) => Product.fromJson(snapshot.data()!),
+      toFirestore: (product, _) => product.toJson(),
+    );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,18 +56,40 @@ class _ItemListPageState extends State<ItemListPage> {
           ),
         ],
       ),
-      body: GridView.builder(
-        itemCount: productList.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: .8,
-        ),
-        itemBuilder: (context, index) {
-          return productContainer(
-            no: productList[index].no ?? 0,
-            name: productList[index].name ?? '',
-            imageUrl: productList[index].imageUrl ?? '',
-            price: productList[index].price ?? 0.0,
+      body: StreamBuilder(
+        stream: _productListRef.orderBy('no').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return GridView(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: .8,
+              ),
+              children:
+                snapshot.data!.docs.map((doc) {
+                  final product = doc.data();
+                  return productContainer(
+                    no: product.no ?? 0,
+                    name: product.name ?? '',
+                    imageUrl: product.imageUrl ?? '',
+                    price: product.price ?? 0.0,
+                  );
+                }).toList(),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                '오류가 발생했습니다.',
+              ),
+            );
+          }
+
+          return Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+            ),
           );
         },
       ),
