@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../model/order.dart';
 import '../model/product.dart';
 
 final NumberFormat numberFormat = NumberFormat('###,###,###,###');
@@ -27,3 +28,24 @@ void initProductCollectionReference() {
 }
 
 CollectionReference<Product> getProductCollectionReference() => _productListRef;
+
+
+Future<List<ProductOrder>> getOrderListFromFirestore() async {
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  QuerySnapshot<Map<String, dynamic>> _snapshot = await _firestore.collection("orders").get();
+  return _snapshot.docs
+      .map((e) => ProductOrder.fromJson(e.data()))
+      .toList();
+}
+
+Future<List<Product>> getProductListFromFirestoreByOrderNo(List<String> orderNoList) async {
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  QuerySnapshot<Map<String, dynamic>> _snapshot = await _firestore
+      .collection("products")
+      .where('orderNo', whereIn: orderNoList)
+      .get();
+
+  return _snapshot.docs
+      .map((e) => Product.fromJson(e.data()))
+      .toList();
+}

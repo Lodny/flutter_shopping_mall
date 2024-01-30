@@ -40,13 +40,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (_cartMap.isEmpty) return;
 
     _productList = getProductCollectionReference()
-        .where('no',
-      whereIn: _cartMap.keys
-          .map((key) => int.parse(key),)
-          .toList(),
-    )
-        .orderBy('no')
-        .snapshots();
+      .where('no',
+        whereIn: _cartMap.keys.map((key) => int.parse(key),)
+          .toList(),)
+      .orderBy('no')
+      .snapshots();
   }
 
   final formkey = GlobalKey<FormState>();

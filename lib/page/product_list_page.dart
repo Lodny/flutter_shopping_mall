@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_shopping_mall/page/cart_page.dart';
 import 'package:flutter_shopping_mall/page/my_order_list_page.dart';
@@ -24,11 +25,20 @@ class _ItemListPageState extends State<ItemListPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => MyOrderListPage(),
+            onPressed: () async {
+              final _orderCollection = FirebaseFirestore.instance.collection('orders');
+              final orderList = await getOrderListFromFirestore();
+              final orderNoList = orderList.map((e) => e.orderNo!,).toList();
+              final productList = await getProductListFromFirestoreByOrderNo(orderNoList);
+
+              print('>> orderList.length : ${orderList.length}');
+              print('>> productList.length : ${productList.length}');
+
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => MyOrderListPage(orderList, productList),
               ),
-            ),
+            );
+            },
             icon: Icon(
               Icons.account_circle,
             ),

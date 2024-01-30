@@ -1,4 +1,4 @@
-class Order {
+class ProductOrder {
   int? orderId;
   int? productNo;
   String? orderDate;
@@ -8,7 +8,7 @@ class Order {
   String? paymentStatus;
   String? deliveryStatus;
 
-  Order({
+  ProductOrder({
     this.orderId,
     this.productNo,
     this.orderDate,
@@ -19,8 +19,8 @@ class Order {
     this.deliveryStatus
   });
 
-  factory Order.fromJson(Map<String, dynamic> json) {
-    return Order(
+  factory ProductOrder.fromJson(Map<String, dynamic> json) {
+    return ProductOrder(
       orderId: json['orderId'] ?? 0,
       productNo: json['productNo'] ?? 0,
       orderDate: json['orderDate'] ?? '',
